@@ -30,7 +30,7 @@ class PythonBuild(object):
         Download the python build.
         """
         download = urllib2.urlopen(self.package_url)
-        with open(self.package_path,'wb') as f:
+        with open(self.package_path, 'wb') as f:
             f.write(download.read())
 
     def extractPackage(self):
