@@ -1,0 +1,49 @@
+import os
+import sys
+import logging
+import argparse
+from vampire.build import PythonBuild
+
+logging.basicConfig(
+    format='[%(levelname)s] %(message)s'
+)
+logger = logging.getLogger('vampire')
+logger.setLevel(logging.INFO)
+
+
+def version():
+    """
+    Print the version and exit.
+    """
+    print('Vampire %s\n' % 0.1)
+    sys.exit(0)
+
+
+def main():
+    """
+    Parse arguments and execute.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--version', help='Specify the Python version', required=True)
+    parser.add_argument('--target', help='Specify the target directory',
+                        default=os.path.join(os.path.expanduser('~'), 'python'))
+    parser.add_argument('--host', help='Specify the target host', default='localhost')
+    parser.add_argument('--DEBUG', help='Switch logger to debug output', action='store_true', default=False)
+    parser.add_argument('--VERSION', help='Print Vampire version and exit', action='store_true', default=False)
+    args = parser.parse_args()
+
+    if args.VERSION:
+        version()
+
+    if args.DEBUG:
+        logger.setLevel(logging.DEBUG)
+
+    logger.info('Starting')
+    PythonBuild(
+        args.version,
+        args.target,
+        args.host
+    )
+
+if __name__ == '__main__':
+    main()
