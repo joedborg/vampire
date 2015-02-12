@@ -7,10 +7,10 @@ if sys.version_info[0] < 3:
 
 setup(
     name='vampire',
-    version='0.1.1',
+    version='0.1.2',
     packages=['vampire'],
     scripts=['vmp'],
-    url='https://josephb.org/projects/vmp/',
+    url='https://josephb.org/projects/vampire/',
     license='GPLv2',
     author='Joseph Borg',
     author_email='joe@josephb.org',
