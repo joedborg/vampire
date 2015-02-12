@@ -1,9 +1,14 @@
+import sys
 from distutils.core import setup
 
+if sys.version_info[0] < 3:
+    raise AssertionError('You must use Python 3 with Vampire.')
+
+
 setup(
-    name='Vampire',
+    name='vampire',
     version='0.1',
-    packages=['vmp'],
+    packages=['vampire'],
     scripts=['vmp'],
     url='https://josephb.org/projects/vmp/',
     license='GPLv2',

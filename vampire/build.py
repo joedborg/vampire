@@ -1,9 +1,25 @@
 import os
+import tarfile
 import logging
-import urllib2
 import subprocess
+from urllib.request import urlopen
 
 logger = logging.getLogger('vampire')
+
+
+class Directory(object):
+    """
+    Change directory.
+    """
+    def __init__(self, path):
+        self.path = path
+
+    def __enter__(self):
+        self.origin = os.getcwd()
+        os.chdir(self.path)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        os.chdir(self.origin)
 
 
 class PythonBuild(object):
@@ -19,43 +35,63 @@ class PythonBuild(object):
         logger.debug('Target: %s' % target)
         logger.debug('Host: %s' % host)
         self.version = version
+        self.nice_version = '.'.join(list(self.version))
         self.target = target
         self.host = host
-        self.package_url = 'https://www.python.org/ftp/python/%s/Python-%s.tgz' % (self.version, self.version)
         self.temporary_directory = '/tmp'
-        self.package_path = os.path.join(self.temporary_directory, os.path.basename(self.package_url))
+        self.package_url = 'https://www.python.org/ftp/python/%s/Python-%s.tar.xz' % (
+            self.nice_version, self.nice_version
+        )
+        self.package_name_zipped = os.path.basename(self.package_url)
+        self.package_name = os.path.splitext(os.path.splitext(self.package_name_zipped)[0])[0]
+        self.package_path = os.path.join(self.temporary_directory, self.package_name_zipped)
 
-    def getPackage(self):
+    def __call__(self):
         """
-        Download the python build.
+        Run the methods.
         """
-        download = urllib2.urlopen(self.package_url)
+        self.get()
+        self.extract()
+        self.compile()
+
+    def get(self):
+        """
+        Download the Python build.
+        """
+        logger.info('Downloading...')
+        download = urlopen(self.package_url)
         with open(self.package_path, 'wb') as f:
             f.write(download.read())
+        logger.info('...done.')
 
-    def extractPackage(self):
+    def extract(self):
         """
         Extract the build.
         """
-        with open(self.package_path) as f:
-            pass  # TODO: Extract package.
+        logger.info('Extracting...')
+        with tarfile.open(self.package_path) as f:
+            f.extractall(self.temporary_directory)
+        logger.info('...done.')
 
-    def compilePackage(self):
+    def compile(self):
         """
         Compile the build.
         """
-        configure_proc = subprocess.Popen(['./configure', '--prefix=%s' % self.target])
-        configure_proc.wait()
-        if configure_proc.returncode != 0:
-            configure_proc.communicate()
-            raise RuntimeError('Configure exited with status %s' % configure_proc.returncode)
-        make_proc = subprocess.Popen(['make'])
-        make_proc.wait()
-        if make_proc.returncode != 0:
-            make_proc.communicate()
-            raise RuntimeError('Make exited with status %s')
-        install_proc = subprocess.Popen(['make', 'install'])
-        install_proc.wait()
-        if install_proc.returncode != 0:
-            install_proc.communicate()
-            raise RuntimeError('Make install exited with status %s' % install_proc.returncode)
+        logger.info('Installing...')
+        with Directory(os.path.join(self.temporary_directory, self.package_name)):
+            configure_process = subprocess.Popen(['./configure', '--prefix=%s' % self.target])
+            configure_process.wait()
+            if configure_process.returncode != 0:
+                configure_process.communicate()
+                raise RuntimeError('Configure exited with status %s' % configure_process.returncode)
+            make_process = subprocess.Popen(['make'])
+            make_process.wait()
+            if make_process.returncode != 0:
+                make_process.communicate()
+                raise RuntimeError('Make exited with status %s')
+            install_process = subprocess.Popen(['make', 'install'])
+            install_process.wait()
+            if install_process.returncode != 0:
+                install_process.communicate()
+                raise RuntimeError('Make install exited with status %s' % install_process.returncode)
+        logger.info('...done.')

@@ -38,12 +38,14 @@ def main():
     if args.DEBUG:
         logger.setLevel(logging.DEBUG)
 
-    logger.info('Starting')
-    PythonBuild(
+    logger.info('Starting Vampire.')
+    build = PythonBuild(
         args.version,
         args.target,
         args.host
     )
+    build()
+
 
 if __name__ == '__main__':
     main()
