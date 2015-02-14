@@ -7,7 +7,7 @@ if sys.version_info[0] < 3:
 
 setup(
     name='vampire',
-    version='0.1.2',
+    version='0.1.3',
     packages=['vampire'],
     scripts=['vmp'],
     url='https://josephb.org/projects/vampire/',

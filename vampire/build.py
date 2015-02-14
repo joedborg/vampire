@@ -1,4 +1,5 @@
 import os
+import shutil
 import tarfile
 import logging
 import subprocess
@@ -46,6 +47,8 @@ class PythonBuild(object):
         self.package_name = os.path.splitext(os.path.splitext(self.package_name_zipped)[0])[0]
         self.package_path = os.path.join(self.temporary_directory, self.package_name_zipped)
 
+        self.is_three = int(self.version.replace('.', '')) > 300
+
     def __call__(self):
         """
         Run the methods.
@@ -53,6 +56,7 @@ class PythonBuild(object):
         self.get()
         self.extract()
         self.compile()
+        self.cleanup()
 
     def get(self):
         """
@@ -88,10 +92,20 @@ class PythonBuild(object):
             make_process.wait()
             if make_process.returncode != 0:
                 make_process.communicate()
-                raise RuntimeError('Make exited with status %s')
+                raise RuntimeError('Make exited with status %s' % make_process.returncode)
             install_process = subprocess.Popen(['make', 'install'])
             install_process.wait()
             if install_process.returncode != 0:
                 install_process.communicate()
                 raise RuntimeError('Make install exited with status %s' % install_process.returncode)
+        logger.info('...done.')
+
+    def cleanup(self):
+        """
+        Cleanup the source
+        files.
+        """
+        logger.info('Cleaning up...')
+        os.remove(self.package_path)
+        shutil.rmtree(os.path.join(self.temporary_directory, self.package_name))
         logger.info('...done.')
