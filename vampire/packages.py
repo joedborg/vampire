@@ -34,11 +34,15 @@ class PythonPackages(object):
 
         self.python_executable = os.path.join(self.build.target, 'bin/python')
 
-        self.ez_url = 'https://bootstrap.pypa.io/ez_setup.py'
-        self.ez_path = os.path.join(self.build.temporary_directory, 'ez_setup.py')
-        self.ez_executable = os.path.join(os.path.dirname(self.python_executable), 'easy_install')
+        if not self.build.is_three:
+            self.ez_url = 'https://bootstrap.pypa.io/ez_setup.py'
+            self.ez_path = os.path.join(self.build.temporary_directory, 'ez_setup.py')
+            self.ez_executable = os.path.join(os.path.dirname(self.python_executable), 'easy_install')
 
-        self.pip_executable = os.path.join(os.path.dirname(self.python_executable), 'pip')
+        if self.build.is_three:
+            self.pip_executable = os.path.join(os.path.dirname(self.python_executable), 'pip3')
+        else:
+            self.pip_executable = os.path.join(os.path.dirname(self.python_executable), 'pip')
 
     def __call__(self):
         """
