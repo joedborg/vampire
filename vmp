@@ -3,8 +3,10 @@ import os
 import sys
 import logging
 import argparse
+import platform
 from vampire.build import PythonBuild
 from vampire.packages import PythonPackages
+from vampire.versions import available_versions
 
 
 logging.basicConfig(
@@ -27,7 +29,7 @@ def main():
     Parse arguments and execute.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--version', help='Specify the Python version', required=True)
+    parser.add_argument('--version', help='Specify the Python version', default=platform.python_version())
     parser.add_argument('--target', help='Specify the target directory',
                         default=os.path.join(os.path.expanduser('~'), 'python'))
     parser.add_argument('--host', help='Specify the target host', default='localhost')
@@ -35,6 +37,8 @@ def main():
     parser.add_argument('--requirements', help='Specify pip requirements file')
     parser.add_argument('--DEBUG', help='Switch logger to debug output', action='store_true', default=False)
     parser.add_argument('--VERSION', help='Print Vampire version and exit', action='store_true', default=False)
+    parser.add_argument('--list', help='Print available minor Python branches', action='store_true', default=False)
+    parser.add_argument('--listall', help='Print all known available Python versions', action='store_true', default=False)
     args = parser.parse_args()
 
     if args.VERSION:
@@ -42,6 +46,17 @@ def main():
 
     if args.DEBUG:
         logger.setLevel(logging.DEBUG)
+
+    if args.list:
+        print("Available Python versions:")
+        print("\n".join(available_versions(recent=True)))
+        sys.exit(0)
+
+    if args.listall:
+        print("All available Python versions")
+        print("(Excluding early releases")
+        print("\n".join(available_versions()))
+        sys.exit(0)
 
     logger.info('Starting Vampire.')
     build = PythonBuild(

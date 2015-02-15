@@ -36,7 +36,10 @@ class PythonBuild(object):
         logger.debug('Target: %s' % target)
         logger.debug('Host: %s' % host)
         self.version = version
-        self.nice_version = '.'.join(list(self.version))
+        if '.' not in self.version:
+            self.nice_version = '.'.join(list(self.version))
+        else:
+            self.nice_version = self.version
         self.target = os.path.abspath(target)
         self.host = host
         self.temporary_directory = '/tmp'
@@ -47,7 +50,7 @@ class PythonBuild(object):
         self.package_name = os.path.splitext(os.path.splitext(self.package_name_zipped)[0])[0]
         self.package_path = os.path.join(self.temporary_directory, self.package_name_zipped)
 
-        self.is_three = int(self.version.replace('.', '')) > 300
+        self.is_three = self.version.startswith('3')
 
     def __call__(self):
         """
