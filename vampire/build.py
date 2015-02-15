@@ -50,7 +50,7 @@ class PythonBuild(object):
         self.package_name = os.path.splitext(os.path.splitext(self.package_name_zipped)[0])[0]
         self.package_path = os.path.join(self.temporary_directory, self.package_name_zipped)
 
-        self.is_three = int(self.version.replace('.', '')) > 300
+        self.is_three = self.version.startswith('3')
 
     def __call__(self):
         """
