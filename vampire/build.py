@@ -36,7 +36,10 @@ class PythonBuild(object):
         logger.debug('Target: %s' % target)
         logger.debug('Host: %s' % host)
         self.version = version
-        self.nice_version = '.'.join(list(self.version))
+        if '.' not in self.version:
+            self.nice_version = '.'.join(list(self.version))
+        else:
+            self.nice_version = self.version
         self.target = os.path.abspath(target)
         self.host = host
         self.temporary_directory = '/tmp'
