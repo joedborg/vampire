@@ -25,12 +25,24 @@ class PythonPackages(object):
     Class abstracting Python
     packages.
     """
-    def __init__(self, build, packages):
+    def __init__(self, build, packages=None, requirements=None):
         """
         Set the constants.
         """
         self.build = build
-        self.packages = packages
+
+        # argparse sets None if not given. Can't iterate over that later,
+        # so set to empty list
+        if packages and type(packages) == list:
+            self.packages = packages
+        else:
+            self.packages = list()
+
+        self.requirements = requirements
+        if self.requirements:
+            self.requirements = os.path.abspath(self.requirements)
+            if not os.access(self.requirements, os.R_OK):
+                raise RuntimeError("pip requirements file %s unreadable" % self.requirements)
 
         self.python_executable = os.path.join(self.build.target, 'bin/python')
 
@@ -84,6 +96,15 @@ class PythonPackages(object):
         for package in self.packages:
             logger.info('Installing %s...' % package)
             process = subprocess.Popen([self.pip_executable, 'install', package])
+            process.wait()
+            if process.returncode != 0:
+                process.communicate()
+                raise RuntimeError('Package install exited with status %s' % process.returncode)
+            logger.info('...done.')
+
+        if self.requirements:
+            logger.info('Installing from %s...' % self.requirements)
+            process = subprocess.Popen([self.pip_executable, 'install', '-r', self.requirements])
             process.wait()
             if process.returncode != 0:
                 process.communicate()

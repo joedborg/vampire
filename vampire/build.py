@@ -25,7 +25,7 @@ class Directory(object):
 
 class PythonBuild(object):
     """
-    Class abstracting a Python 
+    Class abstracting a Python
     build.
     """
     def __init__(self, version, target, host):
