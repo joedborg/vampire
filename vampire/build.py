@@ -37,7 +37,7 @@ class PythonBuild(object):
         logger.debug('Host: %s' % host)
         self.version = version
         self.nice_version = '.'.join(list(self.version))
-        self.target = target
+        self.target = os.path.abspath(target)
         self.host = host
         self.temporary_directory = '/tmp'
         self.package_url = 'https://www.python.org/ftp/python/%s/Python-%s.tar.xz' % (
