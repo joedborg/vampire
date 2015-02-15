@@ -2,6 +2,7 @@
 from urllib.request import urlopen
 from html.parser import HTMLParser
 from collections import defaultdict
+import requests
 
 class PythonIndexParser(HTMLParser):
     def __init__(self):
@@ -31,8 +32,19 @@ def available_versions(recent=False):
     foo = download.read()
     parser.feed(str(foo))
 
-    versions = parser.get_versions()
+    versions = sorted(parser.get_versions())
 
+    # alphas and release candidates get their own directory, but add to the 
+    # numeric version numbers found in the directories.
+    # We only care about these in the most recently two or three directories
+    check_versions = list(versions[-3:])
+    for version in check_versions:
+        url = 'https://www.python.org/ftp/python/{0}/Python-{0}.tar.xz'.format(version)
+        header_info = requests.head(url)
+        if header_info.status_code != 200:
+            versions.remove(version)
+
+    # --listall was used, return all values
     if recent is False:
         return versions
 
