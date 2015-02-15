@@ -53,7 +53,8 @@ def main():
         sys.exit(0)
 
     if args.listall:
-        print("All known and available Python versions:")
+        print("All available Python versions")
+        print("(Excluding early releases")
         print("\n".join(available_versions()))
         sys.exit(0)
 
