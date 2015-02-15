@@ -32,6 +32,7 @@ def main():
                         default=os.path.join(os.path.expanduser('~'), 'python'))
     parser.add_argument('--host', help='Specify the target host', default='localhost')
     parser.add_argument('--packages', help='Specify required packages', nargs='+')
+    parser.add_argument('--requirements', help='Specify pip requirements file')
     parser.add_argument('--DEBUG', help='Switch logger to debug output', action='store_true', default=False)
     parser.add_argument('--VERSION', help='Print Vampire version and exit', action='store_true', default=False)
     args = parser.parse_args()
@@ -52,7 +53,8 @@ def main():
 
     packages = PythonPackages(
         build,
-        args.packages
+        packages=args.packages,
+        requirements=args.requirements
     )
     packages()
     logger.info('Finished.')
